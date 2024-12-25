@@ -19,9 +19,8 @@ const authRouter = require("./routes/authRoutes");
 const notFoundMiddleware = require("./middleware/not-found");
 const errorHandlerMiddleware = require("./middleware/error-handler");
 
-app.use("/api/v1/auth", authRouter);
-
 app.use(express.json()); // so we can access req.body
+app.use("/api/v1/auth", authRouter);
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);

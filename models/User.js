@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 const validator = require("validator"); // will use for eamil checking
 const bcrypt = require("bcryptjs");
-const { required } = require("joi");
 
 const UserSchema = new mongoose.Schema({
   name: {
@@ -27,6 +26,7 @@ const UserSchema = new mongoose.Schema({
   role: {
     type: String,
     enum: ["admin", "moderator", "user"],
+    default: "user",
   },
 });
 
