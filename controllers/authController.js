@@ -1,12 +1,19 @@
 const User = require("../models/User");
 const { StatusCodes } = require("http-status-codes");
 const CustomError = require("../errors");
+const { attachCookiesToResponse } = require("../utils");
+
 const register = async (req, res) => {
   const { name, email, password } = req.body;
+  const isFirstAccount = (await User.countDocuments({})) === 0;
+  const role = isFirstAccount ? "admin" : "driver";
 
-  const user = await User.create({ name, email, password });
+  const user = await User.create({ name, email, password, role });
+  const tokenUser = { name: user.name, userId: user.id, role: user.role };
 
-  res.status(StatusCodes.CREATED).json({ user });
+  attachCookiesToResponse({ res, user: tokenUser });
+
+  res.status(StatusCodes.CREATED).json({ user: tokenUser });
 };
 
 const login = async (req, res) => {

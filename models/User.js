@@ -25,9 +25,22 @@ const UserSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ["admin", "moderator", "user"],
-    default: "user",
+    enum: ["admin", "moderator", "driver"],
+    default: "driver",
   },
 });
+
+//If the password is not modified just return on save
+//Otherwise if it is either created or changed procced to hash it
+UserSchema.pre("save", async function () {
+  if (!this.isModified("password")) return;
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+});
+
+UserSchema.methods.comparePassword = async function (canditatePassword) {
+  const isMatch = await bcrypt.compare(canditatePassword, this.password);
+  return isMatch;
+};
 
 module.exports = mongoose.model("User", UserSchema);
