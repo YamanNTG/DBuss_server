@@ -16,6 +16,7 @@ app.get("/", (req, res) => {
   res.send("DBbuss API");
 });
 const authRouter = require("./routes/authRoutes");
+const userRouter = require("./routes/userRoutes");
 
 //middleware
 const notFoundMiddleware = require("./middleware/not-found");
@@ -25,6 +26,7 @@ app.use(morgan("tiny"));
 app.use(express.json()); // so we can access req.body
 app.use(cookieParser(process.env.JWT_SECRET));
 app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/users", userRouter);
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);

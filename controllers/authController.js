@@ -28,10 +28,24 @@ const login = async (req, res) => {
     throw new CustomError.UnauthenticatedError("Ivalid Credentials");
   }
 
-  res.status(StatusCodes.OK).json({ user });
+  const isPasswordCorrect = await user.comparePassword(password);
+
+  if (!isPasswordCorrect) {
+    throw new CustomError.UnauthenticatedError("Ivalid Credentials");
+  }
+
+  const tokenUser = { name: user.name, userId: user.id, role: user.role };
+
+  attachCookiesToResponse({ res, user: tokenUser });
+
+  res.status(StatusCodes.CREATED).json({ user: tokenUser });
 };
 
 const logout = async (req, res) => {
+  res.cookie("token", "logout", {
+    httpOnly: true,
+    expires: new Date(Date.now()),
+  });
   res.status(StatusCodes.OK).json({ msg: "User logged out!" });
 };
 
