@@ -27,7 +27,6 @@ const userRouter = require('./routes/userRoutes');
 const notFoundMiddleware = require('./middleware/not-found');
 const errorHandlerMiddleware = require('./middleware/error-handler');
 
-app.set('trust proxy', 1);
 app.use(
   rateLimiter({
     windowMs: 15 * 60 * 1000,
@@ -41,7 +40,6 @@ app.use(mongoSanitize());
 app.use(express.json()); // so we can access req.body
 app.use(
   cors({
-    origin: 'https://buss-front.netlify.app', //BE CHANGED WITH THE PRODUCTION URL !!!!!!!
     credentials: true,
   })
 );
