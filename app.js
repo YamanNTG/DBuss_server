@@ -41,7 +41,7 @@ app.use(mongoSanitize());
 app.use(express.json()); // so we can access req.body
 app.use(
   cors({
-    origin: 'https://buss-front.netlify.app', // TO BE CHANGED WITH THE PRODUCTION URL !!!!!!!
+    origin: 'https://buss-front.netlify.app', //BE CHANGED WITH THE PRODUCTION URL !!!!!!!
     credentials: true,
   })
 );
