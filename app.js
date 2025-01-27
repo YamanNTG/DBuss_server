@@ -7,7 +7,11 @@ const app = express();
 //rest of packages
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
+const rateLimiter = require('express-rate-limit');
+const helmet = require('helmet');
+const xss = require('xss-clean');
 const cors = require('cors');
+const mongoSanitize = require('express-mongo-sanitize');
 
 //database
 const connectDB = require('./db/connect');
@@ -23,11 +27,20 @@ const userRouter = require('./routes/userRoutes');
 const notFoundMiddleware = require('./middleware/not-found');
 const errorHandlerMiddleware = require('./middleware/error-handler');
 
+app.use(
+  rateLimiter({
+    windowMs: 15 * 60 * 1000,
+    max: 60,
+  })
+);
+app.use(helmet());
 app.use(morgan('tiny'));
+app.use(xss());
+app.use(mongoSanitize());
 app.use(express.json()); // so we can access req.body
 app.use(
   cors({
-    origin: 'http://localhost:5173', // TO BE CHANGED WITH THE PRODUCTION URL !!!!!!!
+    origin: 'https://buss-front.netlify.app', // TO BE CHANGED WITH THE PRODUCTION URL !!!!!!!
     credentials: true,
   })
 );
