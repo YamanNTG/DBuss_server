@@ -40,6 +40,7 @@ app.use(mongoSanitize());
 app.use(express.json()); // so we can access req.body
 app.use(
   cors({
+    origin: 'https://buss-front.netlify.app',
     credentials: true,
   })
 );
