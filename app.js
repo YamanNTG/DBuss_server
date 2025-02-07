@@ -38,18 +38,18 @@ app.use(morgan('tiny'));
 app.use(xss());
 app.use(mongoSanitize());
 app.use(express.json()); // so we can access req.body
-app.use(
-  cors({
-    origin: 'https://buss-front.netlify.app',
-    credentials: true,
-  })
-);
 // app.use(
 //   cors({
-//     origin: 'http://localhost:5173',
+//     origin: 'https://buss-front.netlify.app',
 //     credentials: true,
 //   })
 // );
+app.use(
+  cors({
+    origin: 'http://localhost:5173',
+    credentials: true,
+  })
+);
 app.use(cookieParser(process.env.JWT_SECRET));
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', userRouter);

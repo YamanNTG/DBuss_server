@@ -34,6 +34,12 @@ const UserSchema = new mongoose.Schema({
     default: false,
   },
   verified: Date,
+  passwordToken: {
+    type: String,
+  },
+  passwordTokenExpirationDate: {
+    type: Date,
+  },
 });
 
 //If the password is not modified just return on save
