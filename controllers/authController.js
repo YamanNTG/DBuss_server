@@ -161,10 +161,12 @@ const forgotPassword = async (req, res) => {
 
 const resetPassword = async (req, res) => {
   const { passwordToken, email, password } = req.body;
+  console.log(req.body);
+
   if (!passwordToken || !email || !password) {
     throw new CustomError.BadRequestError('Please provide all values');
   }
-  const user = User.findOne({ email });
+  const user = await User.findOne({ email });
 
   if (user) {
     const currentDate = new Date();
