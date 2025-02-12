@@ -4,6 +4,13 @@ require('express-async-errors');
 const express = require('express');
 const app = express();
 
+const fileUpload = require('express-fileupload');
+const cloudinary = require('cloudinary').v2;
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.CLOUD_API_KEY,
+  api_secret: process.env.CLOUD_API_SECRET,
+});
 //rest of packages
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
@@ -22,6 +29,7 @@ app.get('/', (req, res) => {
 });
 const authRouter = require('./routes/authRoutes');
 const userRouter = require('./routes/userRoutes');
+const newsRouter = require('./routes/newsRoutes');
 
 //middleware
 const notFoundMiddleware = require('./middleware/not-found');
@@ -38,6 +46,7 @@ app.use(morgan('tiny'));
 app.use(xss());
 app.use(mongoSanitize());
 app.use(express.json()); // so we can access req.body
+app.use(fileUpload({ useTempFiles: true }));
 
 app.use(
   cors({
@@ -49,8 +58,10 @@ app.use(
   })
 );
 app.use(cookieParser(process.env.JWT_SECRET));
+app.use(express.static('./public'));
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/news', newsRouter);
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
