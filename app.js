@@ -46,7 +46,12 @@ app.use(morgan('tiny'));
 app.use(xss());
 app.use(mongoSanitize());
 app.use(express.json()); // so we can access req.body
-app.use(fileUpload({ useTempFiles: true }));
+app.use(
+  fileUpload({
+    useTempFiles: true,
+    tempFileDir: '/tmp/',
+  })
+);
 
 app.use(
   cors({
