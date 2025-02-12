@@ -57,6 +57,7 @@ app.use(
     origin: [
       'http://localhost:5173', //dev
       'https://buss-front.netlify.app', //prod
+      'https://dbuss-api-025-8594a98bd0c9.herokuapp.com',
     ],
     credentials: true,
   })
