@@ -49,7 +49,6 @@ app.use(express.json()); // so we can access req.body
 app.use(
   fileUpload({
     useTempFiles: true,
-    tempFileDir: '/tmp/',
   })
 );
 

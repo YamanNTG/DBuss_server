@@ -3,7 +3,6 @@ const News = require('../models/News');
 const path = require('path');
 const cloudinary = require('cloudinary').v2;
 const fs = require('fs');
-const { promises: fsPromises } = require('fs');
 
 const { StatusCodes } = require('http-status-codes');
 const CustomError = require('../errors');
@@ -53,54 +52,17 @@ const deleteNews = async (req, res) => {
 };
 
 const uploadImage = async (req, res) => {
-  try {
-    if (!req.files || !req.files.image) {
-      throw new CustomError.BadRequestError('No file uploaded');
+  const result = await cloudinary.uploader.upload(
+    req.files.image.tempFilePath,
+    {
+      use_filename: true,
+      folder: 'TransitTask-Assets',
     }
+  );
+  fs.unlinkSync(req.files.image.tempFilePath);
+  console.log(result);
 
-    const file = req.files.image;
-
-    if (!file.mimetype.startsWith('image')) {
-      throw new CustomError.BadRequestError('Please upload an image file');
-    }
-
-    const maxSize = 5 * 1024 * 1024;
-    if (file.size > maxSize) {
-      throw new CustomError.BadRequestError('Image size must be less than 5MB');
-    }
-
-    try {
-      const result = await cloudinary.uploader.upload(file.tempFilePath, {
-        use_filename: true,
-        folder: 'TransitTask-Assets',
-      });
-
-      // Use fsPromises.unlink instead of fs.unlink
-      await fsPromises.unlink(file.tempFilePath);
-
-      return res.status(StatusCodes.OK).json({ image: result.secure_url });
-    } catch (cloudinaryError) {
-      // Clean up temp file if cloudinary upload fails
-      try {
-        await fsPromises.unlink(file.tempFilePath);
-      } catch (unlinkError) {
-        console.error('Error cleaning up temp file:', unlinkError);
-      }
-      console.error('Cloudinary Error:', cloudinaryError);
-      throw new CustomError.BadRequestError('Error uploading to cloud storage');
-    }
-  } catch (error) {
-    console.error('Upload Error:', error);
-    // If there's a temp file, try to clean it up
-    if (req.files?.image?.tempFilePath) {
-      try {
-        await fsPromises.unlink(req.files.image.tempFilePath);
-      } catch (unlinkError) {
-        console.error('Error cleaning up temp file:', unlinkError);
-      }
-    }
-    throw error;
-  }
+  return res.status(StatusCodes.OK).json({ image: result.secure_url });
 };
 
 const uploadImageLocal = async (req, res) => {
