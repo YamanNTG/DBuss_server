@@ -34,8 +34,8 @@ const registerInvite = async (req, res) => {
     name,
   });
 
-  // const origin = 'https://buss-front.netlify.app';
-  const origin = 'http://localhost:5173';
+  const origin = 'https://buss-front.netlify.app';
+  // const origin = 'http://localhost:5173';
 
   await sendRegisterInviteEmail({
     name: inviteToken.name,
