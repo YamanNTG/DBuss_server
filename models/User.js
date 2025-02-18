@@ -23,6 +23,15 @@ const UserSchema = new mongoose.Schema({
     required: [true, 'Please provide password'],
     minlength: 6,
   },
+  profileImage: {
+    type: String,
+    default:
+      'https://res.cloudinary.com/dzilw7kgd/image/upload/v1739805208/profileImage_xjva9z.png',
+  },
+  lastActive: {
+    type: Date,
+    default: Date.now,
+  },
   role: {
     type: String,
     enum: ['admin', 'moderator', 'driver'],

@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const Token = require('../models/Token');
+const InviteToken = require('../models/InviteToken');
 
 const { StatusCodes } = require('http-status-codes');
 const CustomError = require('../errors');
@@ -8,9 +9,62 @@ const {
   createTokenUser,
   sendVerificationEmail,
   sendResetPasswordEmail,
+  sendRegisterInviteEmail,
   createHash,
 } = require('../utils');
 const crypto = require('crypto');
+
+const registerInvite = async (req, res) => {
+  const { email, name } = req.body;
+  if (!email || !name) {
+    throw new CustomError.BadRequestError('Please provide email');
+  }
+  alreadyExist = await User.findOne({ email });
+  if (alreadyExist) {
+    throw new CustomError.BadRequestError(
+      'User already exists, provide different email'
+    );
+  }
+
+  const registerVerificationToken = crypto.randomBytes(40).toString('hex'); //create buffer and turn in into string with 2 hexidecimal
+
+  const inviteToken = await InviteToken.create({
+    registerVerificationToken,
+    email,
+    name,
+  });
+
+  // const origin = 'https://buss-front.netlify.app';
+  const origin = 'http://localhost:5173';
+
+  await sendRegisterInviteEmail({
+    name: inviteToken.name,
+    email: inviteToken.email,
+    registerToken: inviteToken.registerVerificationToken,
+    origin,
+  });
+
+  res.status(StatusCodes.CREATED).json({
+    msg: 'Success! Register invite sent',
+  });
+};
+
+const verifyRegisterToken = async (req, res) => {
+  const { inviteToken, email } = req.body;
+
+  const token = await InviteToken.findOne({ email });
+  if (!token) {
+    throw new CustomError.UnauthenticatedError('Verification failed');
+  }
+  if (
+    token.registerVerificationToken !== inviteToken ||
+    token.email !== email
+  ) {
+    throw new CustomError.UnauthenticatedError('Verification failed');
+  }
+
+  res.status(StatusCodes.OK).json({ msg: 'Verify token valid' });
+};
 
 const register = async (req, res) => {
   const { name, email, password } = req.body;
@@ -26,6 +80,9 @@ const register = async (req, res) => {
     role,
     verificationToken,
   });
+
+  const registerToken = await InviteToken.findOne({ email });
+
   const origin = 'https://buss-front.netlify.app';
   //const origin = 'http://localhost:5173';
 
@@ -35,6 +92,9 @@ const register = async (req, res) => {
     verificationToken: user.verificationToken,
     origin,
   });
+  if (registerToken) {
+    await InviteToken.deleteOne({ _id: registerToken._id });
+  }
   res.status(StatusCodes.CREATED).json({
     msg: 'Success! Please check your email to verify account',
   });
@@ -96,7 +156,7 @@ const login = async (req, res) => {
     attachCookiesToResponse({ res, user: tokenUser, refreshToken });
 
     res
-      .status(StatusCodes.CREATED)
+      .status(StatusCodes.OK)
       .json({ user: tokenUser, isVerified: user.isVerified });
     return;
   }
@@ -111,7 +171,7 @@ const login = async (req, res) => {
   attachCookiesToResponse({ res, user: tokenUser, refreshToken });
 
   res
-    .status(StatusCodes.CREATED)
+    .status(StatusCodes.OK)
     .json({ user: tokenUser, isVerified: user.isVerified });
 };
 
@@ -192,4 +252,6 @@ module.exports = {
   verifyEmail,
   forgotPassword,
   resetPassword,
+  registerInvite,
+  verifyRegisterToken,
 };

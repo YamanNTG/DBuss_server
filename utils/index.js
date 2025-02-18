@@ -4,6 +4,8 @@ const createTokenUser = require('./createTokenUser');
 const sendVerificationEmail = require('./sendVerificationEmail');
 const { sendEmailEth, sendEmail } = require('./sendEmail');
 const sendResetPasswordEmail = require('./sendResetPasswordEmail');
+const sendRegisterInviteEmail = require('./sendRegisterInviteEmail');
+
 const createHash = require('../utils/createHash');
 module.exports = {
   createJWT,
@@ -15,5 +17,6 @@ module.exports = {
   sendEmailEth,
   sendEmail,
   sendResetPasswordEmail,
+  sendRegisterInviteEmail,
   createHash,
 };

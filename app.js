@@ -54,12 +54,9 @@ app.use(
 
 app.use(
   cors({
-    origin: [
-      'http://localhost:5173', //dev
-      'https://buss-front.netlify.app', //prod
-      'https://dbuss-api-025-8594a98bd0c9.herokuapp.com',
-    ],
+    origin: ['http://localhost:5173', 'https://buss-front.netlify.app'],
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   })
 );
 app.use(cookieParser(process.env.JWT_SECRET));
