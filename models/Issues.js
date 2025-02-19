@@ -13,9 +13,16 @@ const IssuesSchema = new mongoose.Schema(
       maxlength: [2000, 'Description can not be more than 2000 characters'],
     },
     location: {
-      lat: { type: Number, required: true },
-      lng: { type: Number, required: true },
-      address: { type: String },
+      lat: {
+        type: Number,
+        required: [true, 'Latitude is required'],
+        default: 53.3498, // Default Dublin latitude
+      },
+      lng: {
+        type: Number,
+        required: [true, 'Longitude is required'],
+        default: -6.2603, // Default Dublin longitude
+      },
     },
     user: {
       type: mongoose.Schema.ObjectId,

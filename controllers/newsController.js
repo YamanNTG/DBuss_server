@@ -40,8 +40,6 @@ const updateNews = async (req, res) => {
 };
 
 const deleteNews = async (req, res) => {
-  console.log(req.params);
-
   const { id: newsId } = req.params;
   const news = await News.findOne({ _id: newsId });
   if (!news) {
