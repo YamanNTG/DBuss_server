@@ -198,8 +198,8 @@ const forgotPassword = async (req, res) => {
   if (user) {
     const passwordToken = crypto.randomBytes(70).toString('hex');
     // send email
-    // const origin = 'https://buss-front.netlify.app';
-    const origin = 'http://localhost:5173';
+    const origin = 'https://buss-front.netlify.app';
+    // const origin = 'http://localhost:5173';
     await sendResetPasswordEmail({
       name: user.name,
       email: user.email,

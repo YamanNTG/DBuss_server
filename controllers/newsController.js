@@ -15,8 +15,24 @@ const createNews = async (req, res) => {
 };
 
 const getAllNews = async (req, res) => {
-  const news = await News.find({}).sort({ createdAt: -1 });
-  res.status(StatusCodes.OK).json({ news, count: news.length });
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  const news = await News.find({})
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit);
+
+  const total = await News.countDocuments();
+
+  res.status(StatusCodes.OK).json({
+    news,
+    count: news.length,
+    currentPage: page,
+    totalPages: Math.ceil(total / limit),
+    hasMore: skip + news.length < total,
+  });
 };
 const getSingleNews = async (req, res) => {
   const { id: newsId } = req.params;
