@@ -1,12 +1,14 @@
 const User = require('../models/User');
 const Issues = require('../models/Issues');
-
 const { StatusCodes } = require('http-status-codes');
 const CustomError = require('../errors');
+const socketService = require('../utils/socketService');
 
 const createIssue = async (req, res) => {
   req.body.user = req.user.userId;
   const issue = await Issues.create(req.body);
+
+  socketService.getIO().emit('issueCreated', issue);
 
   res.status(StatusCodes.OK).json({ issue });
 };
@@ -52,19 +54,19 @@ const updateIssue = async (req, res) => {
     new: true,
     runValidators: true,
   });
-  if (!issue) {
-    throw new CustomError.NotFoundError(`No issue with id : ${issueId}`);
-  }
+
+  socketService.getIO().emit('issueUpdated', issue);
+
   res.status(StatusCodes.OK).json({ issue });
 };
 
 const deleteIssue = async (req, res) => {
   const { id: issueId } = req.params;
   const issue = await Issues.findOne({ _id: issueId });
-  if (!issue) {
-    throw new CustomError.NotFoundError(`No news with id : ${issueId}`);
-  }
   await issue.remove();
+
+  socketService.getIO().emit('issueDeleted', issueId);
+
   res.status(StatusCodes.OK).json({ msg: 'Success! Issue removed.' });
 };
 

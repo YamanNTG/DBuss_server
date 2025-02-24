@@ -3,13 +3,16 @@ const News = require('../models/News');
 const path = require('path');
 const cloudinary = require('cloudinary').v2;
 const fs = require('fs');
-
+const socketService = require('../utils/socketService');
 const { StatusCodes } = require('http-status-codes');
 const CustomError = require('../errors');
 
 const createNews = async (req, res) => {
   req.body.user = req.user.userId;
   const news = await News.create(req.body);
+
+  // Emit socket event for real-time updates
+  socketService.getIO().emit('newsCreated', news);
 
   res.status(StatusCodes.OK).json({ news });
 };
@@ -20,6 +23,10 @@ const getAllNews = async (req, res) => {
   const skip = (page - 1) * limit;
 
   const news = await News.find({})
+    .populate({
+      path: 'user',
+      select: 'name profileImage',
+    })
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit);
@@ -34,12 +41,18 @@ const getAllNews = async (req, res) => {
     hasMore: skip + news.length < total,
   });
 };
+
 const getSingleNews = async (req, res) => {
   const { id: newsId } = req.params;
-  const news = await News.findOne({ _id: newsId });
+  const news = await News.findOne({ _id: newsId }).populate({
+    path: 'user',
+    select: 'name profileImage',
+  });
+
   if (!news) {
     throw new CustomError.NotFoundError(`No news with id : ${newsId}`);
   }
+
   res.status(StatusCodes.OK).json({ news });
 };
 
@@ -49,19 +62,30 @@ const updateNews = async (req, res) => {
     new: true,
     runValidators: true,
   });
+
   if (!news) {
     throw new CustomError.NotFoundError(`No news with id : ${newsId}`);
   }
+
+  // Emit socket event for real-time updates
+  socketService.getIO().emit('newsUpdated', news);
+
   res.status(StatusCodes.OK).json({ news });
 };
 
 const deleteNews = async (req, res) => {
   const { id: newsId } = req.params;
   const news = await News.findOne({ _id: newsId });
+
   if (!news) {
     throw new CustomError.NotFoundError(`No news with id : ${newsId}`);
   }
+
   await news.remove();
+
+  // Emit socket event for real-time updates
+  socketService.getIO().emit('newsDeleted', newsId);
+
   res.status(StatusCodes.OK).json({ msg: 'Success! News removed.' });
 };
 
@@ -111,4 +135,5 @@ module.exports = {
   updateNews,
   deleteNews,
   uploadImage,
+  uploadImageLocal,
 };
