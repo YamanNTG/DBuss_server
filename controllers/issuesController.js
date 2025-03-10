@@ -36,6 +36,19 @@ const getAllIssues = async (req, res) => {
     hasMore: skip + issues.length < total,
   });
 };
+const getActiveIssues = async (req, res) => {
+  const activeIssues = await Issues.find({
+    status: { $in: ['open', 'in=progress'] },
+  });
+  const resolvedIssues = await Issues.find({
+    status: { $in: ['resolved'] },
+  });
+
+  const totalActiveIssues = activeIssues.length;
+  const totalResolvedIssues = resolvedIssues.length;
+
+  res.status(StatusCodes.OK).json({ totalActiveIssues, totalResolvedIssues });
+};
 const getSingleIssue = async (req, res) => {
   const { id: issueId } = req.params;
   const issue = await Issues.findOne({ _id: issueId }).populate({
@@ -76,4 +89,5 @@ module.exports = {
   getSingleIssue,
   updateIssue,
   deleteIssue,
+  getActiveIssues,
 };
