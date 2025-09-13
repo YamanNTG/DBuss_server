@@ -12,11 +12,9 @@ const {
   getSingleIssue,
   updateIssue,
   deleteIssue,
-  getActiveIssues,
 } = require('../controllers/issuesController');
 
 router.route('/').post(authenticateUser, createIssue).get(getAllIssues);
-router.route('/getActiveIssues').get(getActiveIssues);
 router
   .route('/:id')
   .get(getSingleIssue)

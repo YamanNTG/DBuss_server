@@ -22,11 +22,18 @@ const getAllIssues = async (req, res) => {
       path: 'user',
       select: 'name profileImage',
     })
-    .sort({ createdAt: -1 })
+    .sort({ createdAt: -1, _id: -1 })
     .skip(skip)
     .limit(limit);
 
   const total = await Issues.countDocuments();
+
+  const [activeIssuesCount, ongoingIssuesCount, resolvedIssuesCount] =
+    await Promise.all([
+      Issues.countDocuments({ status: 'open' }),
+      Issues.countDocuments({ status: 'in-progress' }),
+      Issues.countDocuments({ status: 'resolved' }),
+    ]);
 
   res.status(StatusCodes.OK).json({
     issues,
@@ -34,20 +41,10 @@ const getAllIssues = async (req, res) => {
     currentPage: page,
     totalPages: Math.ceil(total / limit),
     hasMore: skip + issues.length < total,
+    totalActiveIssues: activeIssuesCount,
+    totalOngoingIssues: ongoingIssuesCount,
+    totalResolvedIssues: resolvedIssuesCount,
   });
-};
-const getActiveIssues = async (req, res) => {
-  const activeIssues = await Issues.find({
-    status: { $in: ['open', 'in=progress'] },
-  });
-  const resolvedIssues = await Issues.find({
-    status: { $in: ['resolved'] },
-  });
-
-  const totalActiveIssues = activeIssues.length;
-  const totalResolvedIssues = resolvedIssues.length;
-
-  res.status(StatusCodes.OK).json({ totalActiveIssues, totalResolvedIssues });
 };
 const getSingleIssue = async (req, res) => {
   const { id: issueId } = req.params;
@@ -89,5 +86,4 @@ module.exports = {
   getSingleIssue,
   updateIssue,
   deleteIssue,
-  getActiveIssues,
 };

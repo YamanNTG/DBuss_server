@@ -98,7 +98,6 @@ const uploadImage = async (req, res) => {
     }
   );
   fs.unlinkSync(req.files.image.tempFilePath);
-  console.log(result);
 
   return res.status(StatusCodes.OK).json({ image: result.secure_url });
 };
