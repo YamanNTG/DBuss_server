@@ -24,7 +24,10 @@ const io = new Server(httpServer, {
     origin: ['http://localhost:5173', 'https://buss-front.netlify.app'],
     methods: ['GET', 'POST'],
     credentials: true,
+    allowedHeaders: ['Content-Type'],
+    exposedHeaders: ['Set-Cookie'],
   },
+  allowEIO3: true,
 });
 socketService.init(io);
 // Socket connection handling
